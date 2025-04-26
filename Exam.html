@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Typing Exam - Login and Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #eef2f3;
+            margin: 0;
+            padding: 0;
+        }
+
+        .login-container,
+        .test-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            margin: 0 auto;
+            margin-top: 5rem;
+        }
+
+        .login-container h2,
+        .test-container h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            width: 100%;
+            padding: 0.7rem;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        /* Typing Test Styles */
+        .test-container {
+            min-width: 1500px;
+        }
+
+        .navbar {
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            font-size: 1rem;
+        }
+
+        .task-title {
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .given-text {
+            background: #f8f9fa;
+            padding: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            height: 150px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .timer {
+            font-weight: bold;
+            color: red;
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 1rem;
+            font-size: 1rem;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            resize: none;
+        }
+
+        button.submit-btn {
+            margin-top: 1rem;
+            background: #28a745;
+        }
+
+        button.submit-btn:hover {
+            background: #218838;
+        }
+
+        /* Sparkle animation */
+        @keyframes sparkle {
+            0% {
+                transform: scale(1);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 0;
+            }
+        }
+
+        .sparkle-message {
+            text-align: center;
+            font-size: 1.5rem;
+            color: green;
+            margin-top: 2rem;
+            animation: sparkle 1.5s infinite;
+        }
+
+        .sparkle-message::before,
+        .sparkle-message::after {
+            content: '*';
+            color: gold;
+            font-size: 2rem;
+            animation: sparkle 1.5s infinite;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Login Form -->
+    <div class="login-container" id="loginContainer">
+        <h2>Typing Exam Login</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="formNo">Form No:</label>
+                <input type="text" id="formNo" name="formNo" required>
+            </div>
+            <div class="form-group">
+                <label for="studentName">Student Name:</label>
+                <input type="text" id="studentName" name="studentName" required>
+            </div>
+            <div class="form-group">
+                <label for="typingTest">Typing Test:</label>
+                <select id="typingTest" name="typingTest" required>
+                    <option value="">Select Test</option>
+                    <option value="English Typing 30 WPM">English Typing 30 WPM</option>
+                    <option value="English Typing 40 WPM">English Typing 40 WPM</option>
+                    <option value="Marathi Typing 30 WPM">Marathi Typing 30 WPM</option>
+                    <option value="Marathi Typing 40 WPM">Marathi Typing 40 WPM</option>
+                </select>
+            </div>
+            <button type="submit">Start Test</button>
+        </form>
+    </div>
+
+    <!-- Typing Test Page -->
+    <div class="test-container" id="testContainer" style="display: none;">
+        <div class="navbar">
+            <div><strong>Form No:</strong> <span id="formNoDisplay"></span></div>
+            <div><strong>Student:</strong> <span id="studentNameDisplay"></span></div>
+            <div><strong>Test:</strong> <span id="typingTestDisplay"></span></div>
+        </div>
+
+        <h2>Typing Test</h2>
+
+        <div class="timer" id="timer">Time Left: 20:00</div>
+
+        <div class="task-title" id="taskTitle">Sample Text Paragraph</div>
+
+        <div class="given-text" id="givenText">
+            <!-- Task text will appear here -->
+        </div>
+
+        <textarea id="typingArea" placeholder="Type the above text here..."></textarea>
+
+        <button class="submit-btn" onclick="submitTask()">Submit Task</button>
+    </div>
+
+    <script>
+        // Handle Login
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formNo = document.getElementById('formNo').value.trim();
+            const studentName = document.getElementById('studentName').value.trim();
+            const typingTest = document.getElementById('typingTest').value.trim();
+
+            if (formNo === "" || studentName === "" || typingTest === "") {
+                alert("Please fill all the details before starting the test.");
+                return;
+            }
+
+            // Hide login, show test
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('testContainer').style.display = 'block';
+
+            document.getElementById('formNoDisplay').textContent = formNo;
+            document.getElementById('studentNameDisplay').textContent = studentName;
+            document.getElementById('typingTestDisplay').textContent = typingTest;
+
+            startTimer();
+            loadTask();
+        });
+
+        let totalTime = 20 * 60;
+        let timerInterval;
+
+        function startTimer() {
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            const timerElement = document.getElementById('timer');
+            const minutes = Math.floor(totalTime / 60);
+            const seconds = totalTime % 60;
+            timerElement.textContent = `Time Left: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+            if (totalTime > 0) {
+                totalTime--;
+            } else {
+                clearInterval(timerInterval);
+                submitTask();
+            }
+        }
+
+        const tasks = [
+            { title: "Sample Text Paragraph", text: "Learning to code can be both exciting and challenging. It opens the door to endless possibilities, from building apps and websites to creating innovative solutions for real-world problems. The key to success is consistency and a willingness to keep learning, even when things get tough. With practice, patience, and the right resources, anyone can master the art of programming and turn their ideas into reality." },
+            { title: "Story", text: "One rainy afternoon, Emma found an old, rusty key in her grandmother’s attic. It was hidden inside a small wooden box covered in dust. Curious, she wiped it clean and noticed strange symbols carved into it. She wondered what it could open. Excited, Emma searched every room in the house, tapping on walls and opening old drawers. Hours passed before she discovered a hidden door behind a tall bookshelf. With a deep breath, she inserted the key into the lock. It clicked open, revealing a spiral staircase leading downward. Emma’s heart raced. Little did she know, an incredible adventure was about to begin." },
+            { title: "Numeric Key Typing", text: "My phone number is 987-654-3210, and my office extension is 2045. Last year, I earned 3,450 reward points, and my goal is to reach 10,000 points by December 31, 2025. The budget for our project is $75,250, split over 12 months. On average, each month we spend around $6,270.45. My favorite numbers are 7, 13, and 22. The password hint is the date 05/12/1998. Remember to add 15% tax to all invoices and double-check all calculations using a calculator." },
+            { title: "Letter Writing", text: "Subject: Request for Leave   Dear Sir/Madam I hope this message finds you well.  I am writing to respectfully request leave from my classes on [Date(s)] due to [brief reason, e.g., personal reasons, medical appointment, family emergency, etc.].I will ensure that I cover any missed lessons and assignments promptly. Kindly grant me permission to be absent on the mentioned day(s). I apologize for any inconvenience this may cause and appreciate your understanding.Thank you for considering my request.Looking forward to your approval.Sincerely,[Your Full Name][Your Roll Number/Registration Number] I am writing to express my interest..." },
+            { title: "Email Writing", text: "Subject: Meeting Reminder Dear Team,Dear Sir/Madam, I hope you are doing well. I am writing to request your permission to leave the class on [Date] due to [reason, e.g., a personal commitment, medical reasons, urgent work]. I will make sure to catch up on all the lessons and assignments that I miss during my absence. Kindly grant me leave for the mentioned day. I apologize for any inconvenience and appreciate your support and understanding. Thank you. Sincerely," },
+        ];
+
+        let currentTaskIndex = 0;
+
+        function loadTask() {
+            if (currentTaskIndex < tasks.length) {
+                document.getElementById('taskTitle').textContent = tasks[currentTaskIndex].title;
+                document.getElementById('givenText').textContent = tasks[currentTaskIndex].text;
+                document.getElementById('typingArea').value = "";
+            } else {
+                clearInterval(timerInterval);
+                document.getElementById('testContainer').innerHTML = ` 
+                <div class="sparkle-message">
+                    Congratulations!<br><br>
+                    You have successfully completed your typing exam.<br><br>
+                    Please collect your certificate from your respective branch.
+                </div>
+            `;
+            }
+        }
+
+        function submitTask() {
+            const typedText = document.getElementById('typingArea').value.trim();
+            if (typedText === "") {
+                alert("Please type something before submitting!");
+                return;
+            }
+            currentTaskIndex++;
+            loadTask();
+        }
+    </script>
+
+</body>
+
+</html>
